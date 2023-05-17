@@ -23,18 +23,6 @@ export const AppDataSource: DataSource = new DataSource({
 )
 
 export const initDb = async (): Promise<void> => {
-
-    console.log({
-        entities,
-        type: "mysql",
-        host: `${process.env.MY_SQL_HOST}`,
-        port: Number(`${process.env.MY_SQL_PORT}`),
-        username: `${process.env.MY_SQL_USERNAME}`,
-        password: `${process.env.MY_SQL_PASSWORD}`,
-        database: `${process.env.MY_SQL_DATABASE}`,
-        logging: true,
-        synchronize: true,
-    });
     return AppDataSource.initialize()
         .then(() => {
             console.log("Data Source has been initialized!");
