@@ -18,10 +18,6 @@ export const saveTransaction = async (trxData: TransactionEntity): Promise<void>
 }
 
 export const retrieveTransactions = async (key:string, value: string | number): Promise<TransactionEntity[] | null> => {
-    console.log("value");
-    console.log(value);
-    console.log("value");
-
     const transactions: TransactionEntity[] | null = await AppDataSource.getRepository(TransactionEntity).findBy({
         user_id: Number(value)
     })
