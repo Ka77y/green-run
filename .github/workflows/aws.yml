@@ -37,7 +37,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    environment: production
+    environment: green-run-env
 
     steps:
     - name: 🚚 Get latest code
@@ -54,16 +54,26 @@ jobs:
       env:
         CI: false
       run: npm run build
-    
-  
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-    - name: ec2 key get 🔨
-      run: aws s3 cp s3://build-pipeline-resources/greenrunkey.pem greenrunkey.pem
-    - name: build 🔨
-      run: aws s3 cp s3://build-pipeline-resources/env /dist/.env
-    
+    - name: get from s3 🔨
+      run: |
+        aws s3 cp s3://build-pipeline-resources/greenrunkey.pem greenrunkey.pem
+        aws s3 cp s3://build-pipeline-resources/env .env
+        ls
+    - name: build to EC2
+      run: |
+        chmod 400 greenrunkey.pem
+        scp -o StrictHostKeyChecking=no -i greenrunkey.pem -r dist ec2-user@ec2-54-147-160-91.compute-1.amazonaws.com:~
+        ls
+        scp -o StrictHostKeyChecking=no -i greenrunkey.pem -r .env ec2-user@ec2-54-147-160-91.compute-1.amazonaws.com:~/dist/
+    - name: Deploy
+      run: |
+        chmod 400 greenrunkey.pem
+        ssh -o StrictHostKeyChecking=no -i greenrunkey.pem ec2-user@ec2-54-147-160-91.compute-1.amazonaws.com "cd dist && npm i && ls -a && npm run deploy" 
+
+
