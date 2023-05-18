@@ -137,6 +137,11 @@ You can test the endpoints with this postman collection
 ```sh
 https://api.postman.com/collections/13307927-5f1c5b78-1023-453a-92b2-10108e04818f?access_key=PMAT-01H0PKE3Y9XVR22W8MB2WTV31Q
 ```
+To run the APP in local execute
+```sh
+npm run start 
+```
+
 ## License
 
 Apache 2.0
