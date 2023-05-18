@@ -68,12 +68,12 @@ jobs:
     - name: build to EC2
       run: |
         chmod 400 greenrunkey.pem
-        scp -o StrictHostKeyChecking=no -i greenrunkey.pem -r dist ec2-user@ec2-54-147-160-91.compute-1.amazonaws.com:~
+        scp -o StrictHostKeyChecking=no -i greenrunkey.pem -r dist ec2-user@ec2-44-195-220-173.compute-1.amazonaws.com:~
         ls
-        scp -o StrictHostKeyChecking=no -i greenrunkey.pem -r .env ec2-user@ec2-54-147-160-91.compute-1.amazonaws.com:~/dist/
+        scp -o StrictHostKeyChecking=no -i greenrunkey.pem -r .env ec2-user@ec2-44-195-220-173.compute-1.amazonaws.com:~/dist/
     - name: Deploy
       run: |
         chmod 400 greenrunkey.pem
-        ssh -o StrictHostKeyChecking=no -i greenrunkey.pem ec2-user@ec2-54-147-160-91.compute-1.amazonaws.com "cd dist && npm i && ls -a && npm run deploy" 
+        ssh -o StrictHostKeyChecking=no -i greenrunkey.pem ec2-user@ec2-44-195-220-173.compute-1.amazonaws.com "cd dist && npm i && ls -a && npm run deploy" &
 
 
