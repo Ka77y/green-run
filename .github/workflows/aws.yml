@@ -74,6 +74,6 @@ jobs:
     - name: Deploy
       run: |
         chmod 400 greenrunkey.pem
-        ssh -o StrictHostKeyChecking=no -i greenrunkey.pem ec2-user@ec2-44-195-220-173.compute-1.amazonaws.com "cd dist && npm i && ls -a && npm run deploy" &
+        ssh -o StrictHostKeyChecking=no -i greenrunkey.pem ec2-user@ec2-44-195-220-173.compute-1.amazonaws.com "cd dist && npm i && ls -a && npm run clean && npm run deploy" &
 
 

@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node-dev index.ts",
     "build": "tsc",
-    "deploy": "fuser -k 8000/tcp && ts-node-dev index.js"
+    "clean": "fuser -k 8000/tcp",
+    "deploy": "ts-node-dev index.js"
   },
   "repository": {
     "type": "git",
