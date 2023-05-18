@@ -24,7 +24,7 @@ export class UserEntity extends SharedPropsEntity {
     @Column({ type: 'varchar', length: 50, nullable: true })
     email: string | undefined;
 
-    @Column({ type: 'varchar', length: 50, nullable: false, unique: true })
+    @Column({ type: 'varchar', length: 50, nullable: false})
     username: string | undefined;
 
     @Column({ type: 'varchar', length: 50, nullable: true })

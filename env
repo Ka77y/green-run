@@ -1,7 +1,7 @@
-SERVER_PORT=8080
-SERVER_HOST=54.147.160.91
+SERVER_PORT=3000
+SERVER_HOST=localhost
 MY_SQL_HOST=greenrun.criy9psobx3d.us-east-1.rds.amazonaws.com
 MY_SQL_PORT=3306
 MY_SQL_USERNAME=kvivanco13
 MY_SQL_PASSWORD=1234abcd
-MY_SQL_DATABASE=schema_greenrun_pd
+MY_SQL_DATABASE=schema_greenrun_ppd

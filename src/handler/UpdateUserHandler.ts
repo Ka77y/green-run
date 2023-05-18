@@ -1,18 +1,32 @@
 import {UserEntity} from "../entities/user.entity";
 import {ResponseToolkit} from "hapi";
-import {defaultTo, get, isEmpty, isNil, omit} from "lodash";
+import {get, isEmpty, isNil, omit} from "lodash";
 import crypto from "js-sha512";
-import {retrieveUser, saveUser, updateUser} from "../controllers/users.controller";
-import {generateJwt, verifyJWT} from "../util/JWT";
-import {saveSession} from "../controllers/session.controller";
-import {WalletEntity} from "../entities/userWallet.entity";
-import {retrieveWallet} from "../controllers/userWallet.controller";
+import {retrieveUser, updateUser} from "../controllers/users.controller";
+import {messageResponse} from "../util/MessageResponse";
 
 export const updateUserHandler = async (request: Request, h: ResponseToolkit): Promise<object> => {
     const body: UserEntity = <UserEntity> get(request, "payload");
     const {id} = get(request, "pre.jwtMiddleware", "");
     let password: string = get(body, "password", "");
-    let user_body: UserEntity
+
+
+    const payload: number = get(request, "params.id", "") === ""? id : get(request, "params.id", "");
+
+
+    const user: UserEntity | null = await retrieveUser({id:payload})
+    let user_body: UserEntity;
+
+    if (isNil(user))
+        return messageResponse("This user can´t be modified", 400, h);
+
+
+
+    console.log("request");
+    console.log(get(request, "params.id"));
+    console.log(id);
+    console.log(body);
+    console.log("request");
 
     if (!isEmpty(password)) {
         password = await crypto.sha512(password);
@@ -29,17 +43,14 @@ export const updateUserHandler = async (request: Request, h: ResponseToolkit): P
     }
 
     const responseBody: UserEntity = omit(user_body, ["password"]);
-    const accessToken: string = generateJwt({...responseBody, id});
-
-    updateUser(user_body, id);
-    saveSession({
-        id: 1,
-        user_id: id,
-        token: accessToken,
-    })
+    console.log("request");
+    console.log(get(request, "params.id"));
+    console.log(id);
+    console.log(body);
+    console.log("request");
+    updateUser(user_body, {id});
 
     return {
         ...responseBody,
-        accessToken
     };
 };

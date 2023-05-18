@@ -1,47 +1,45 @@
 import {UserEntity} from "../entities/user.entity";
-import {ResponseToolkit} from "hapi";
+import {ResponseObject, ResponseToolkit} from "hapi";
 import {defaultTo, get, isNil, omit} from "lodash";
 import {TransactionEntity} from "../entities/transactions.entity";
-import {verifyJWT} from "../util/JWT";
 import {WalletEntity} from "../entities/userWallet.entity";
-import {retrieveWallet, saveWallet} from "../controllers/userWallet.controller";
+import {retrieveWallet, saveWallet, updateWallet} from "../controllers/userWallet.controller";
 import {saveTransaction} from "../controllers/transaction.controller";
+import {messageResponse} from "../util/MessageResponse";
 
-export const depositMoneyHandler = async (request: Request, h: ResponseToolkit): Promise<TransactionEntity> => {
+export const depositMoneyHandler = async (request: Request, h: ResponseToolkit): Promise<TransactionEntity | ResponseObject> => {
+    const middlewareMessage: string = get(request, "pre.userMiddleware.message", "");
+    if (middlewareMessage !== "")
+        return messageResponse(middlewareMessage, 400, h);
+
     const body: TransactionEntity = <TransactionEntity> get(request, "payload");
-    const token: string = get(request, "headers.authorization")
     const {id} = get(request, "pre.jwtMiddleware", "");
-
-    const wallet_aux: WalletEntity | null = await retrieveWallet("user_id", id);
+    const wallet: WalletEntity | null = await retrieveWallet({user_id: id});
     let balance: number;
 
     saveTransaction({
         ...body,
+        created_at: Date.now(),
         user_id: id,
         category: "deposit",
-        created_at: Date.now(),
         status: "approval",
         amount: body.amount
     })
 
-    if (isNil(wallet_aux)) {
+    if (isNil(wallet)) {
         balance = body.amount!;
         saveWallet({
             user_id: id,
             balance,
             created_at: Date.now(),
-            deleted: undefined,
-            deleted_at: undefined,
-            id: 0,
-            updated_at: undefined
         });
     } else {
-        balance = wallet_aux.balance! + body.amount!;
-        saveWallet({
-            ...wallet_aux,
+        balance = wallet.balance! + body.amount!;
+        updateWallet({
+            ...wallet,
             balance,
             updated_at: Date.now()
-        });
+        }, {user_id: id});
     }
 
     return body;
