@@ -19,6 +19,8 @@ export const getTransactionsHandler = async (request: Request, h: ResponseToolki
             return messageResponse("There specified user doesn´t exist", 400, h);
 
         id = user?.id
+    }else {
+        const query = get(request, "query.keyFilter", "");;
     }
 
     console.log(id);
