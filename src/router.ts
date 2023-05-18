@@ -316,6 +316,17 @@ export const router: ServerRoute[] = [
     },
     {
         method: 'GET',
+        path: '/transactions/{username}',
+        handler: getTransactionsHandler,
+        options: {
+            pre: [{
+                method: jwtMiddleware,
+                assign: "jwtMiddleware"
+            }]
+        }
+    },
+    {
+        method: 'GET',
         path: '/bets',
         handler: getBetsHandler,
         options: {
