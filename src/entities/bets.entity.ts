@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from "typeorm"
 import {SharedPropsEntity} from "./sharedPropsEntity";
 
 export type StatusEnum = 'active' | 'cancelled' | 'settled';
-export type ResultEnum = 'won' | 'lost';
+export type ResultEnum = 'won' | 'lost' | 'open';
 
 @Entity("bets")
 export class BetsEntity extends SharedPropsEntity {

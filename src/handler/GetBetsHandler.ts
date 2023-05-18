@@ -5,16 +5,22 @@ import {WalletEntity} from "../entities/userWallet.entity";
 import {retrieveWallet} from "../controllers/userWallet.controller";
 import {TransactionEntity} from "../entities/transactions.entity";
 import {retrieveTransactions} from "../controllers/transaction.controller";
+import {retrieveBets} from "../controllers/bet.controller";
+import {BetsEntity} from "../entities/bets.entity";
+import {messageResponse} from "../util/MessageResponse";
 
-export const getBetsHandler = async (request: Request, h: ResponseToolkit): Promise<ResponseObject | TransactionEntity[]> => {
-    const {id} = get(request, "pre.jwtMiddleware", "");
-    const wallet_aux: TransactionEntity[] | null = await retrieveTransactions("user_id", id);
+export const getBetsHandler = async (request: Request, h: ResponseToolkit): Promise<ResponseObject | BetsEntity[]> => {
+    const middlewareMessage: string = get(request, "pre.adminMiddleware.message", "");
+    if (middlewareMessage !== "")
+        return messageResponse(middlewareMessage, 400, h);
 
-    if (isNil(wallet_aux))
+    const bets: BetsEntity[] | null = await retrieveBets({status: "active"});
+
+    if (isNil(bets))
         return h.response({
-        message: "You do not have a balance available to execute the transaction."
+        message: "There aren´t active bets for now"
     }).code(400);
 
 
-    return wallet_aux;
+    return bets;
 }

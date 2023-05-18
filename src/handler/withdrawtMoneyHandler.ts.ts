@@ -1,16 +1,21 @@
 import {UserEntity} from "../entities/user.entity";
-import {ResponseToolkit} from "hapi";
+import {ResponseObject, ResponseToolkit} from "hapi";
 import {defaultTo, get, isNil, omit} from "lodash";
 import {TransactionEntity} from "../entities/transactions.entity";
 import {verifyJWT} from "../util/JWT";
 import {WalletEntity} from "../entities/userWallet.entity";
-import {retrieveWallet, saveWallet} from "../controllers/userWallet.controller";
+import {retrieveWallet, saveWallet, updateWallet} from "../controllers/userWallet.controller";
 import {saveTransaction} from "../controllers/transaction.controller";
+import {messageResponse} from "../util/MessageResponse";
 
-export const withdrawtMoneyHandlerTs = async (request: Request, h: ResponseToolkit) => {
+export const withdrawtMoneyHandlerTs = async (request: Request, h: ResponseToolkit): Promise<TransactionEntity | ResponseObject> => {
+    const middlewareMessage: string = get(request, "pre.userMiddleware.message", "");
+    if (middlewareMessage !== "")
+        return messageResponse(middlewareMessage, 400, h);
+
     const body: TransactionEntity = <TransactionEntity> get(request, "payload");
     const {id} = get(request, "pre.jwtMiddleware", "");
-    const wallet_aux: WalletEntity = await defaultTo(retrieveWallet("user_id", id), {}) as WalletEntity;
+    const wallet_aux: WalletEntity = await defaultTo(retrieveWallet({user_id: id}), {}) as WalletEntity;
     let balance: number;
 
     if (isNil(wallet_aux)) {
@@ -22,13 +27,12 @@ export const withdrawtMoneyHandlerTs = async (request: Request, h: ResponseToolk
             status: "denied",
             amount: body.amount //todo: add reason in the trx object
         })
-        return h.response({
-            message: "You do not have a balance available to execute the transaction."
-        }).code(400);
+        return messageResponse("You do not have a balance available to execute the transaction.",
+            400, h);
+
     } else if (wallet_aux.balance! - body.amount! < 0) {
-        return h.response({
-            message: "You do not have a balance available to execute the transaction."
-        }).code(400);
+        return messageResponse("You do not have a balance available to execute the transaction.",
+            400, h);
     } else {
         balance = wallet_aux.balance! - body.amount!;
     }
@@ -41,11 +45,10 @@ export const withdrawtMoneyHandlerTs = async (request: Request, h: ResponseToolk
         status: "approval",
         amount: body.amount
     })
-    saveWallet({
+    updateWallet({
         ...wallet_aux,
-        user_id: id,
         balance,
         updated_at: Date.now()
-    });
+    }, {user_id: id});
     return body;
 }

@@ -1,16 +1,19 @@
-import {ResponseToolkit} from "hapi";
 import {get} from "lodash";
 
 export const userMiddleware = async (request:any, h: any) => {
-    const {role} = get(request, "pre.jwtMiddleware", "");
+    const {role, user_state} = get(request, "pre.jwtMiddleware", "");
 
     if(role !== "user") {
-        h.response({
-            message: "This endpoint is accesible only for the 'superAdmin' role"
+        return h.response({
+            message: "This endpoint is accesible only for the 'user' role"
         }).code(400);
-        throw new Error();
     }
 
+    if(user_state === "block") {
+        return h.response({
+            message: "The user is blocked and cannot perform this action"
+        }).code(400);
+    }
 
     return h.continue;
 }

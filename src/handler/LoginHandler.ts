@@ -10,10 +10,8 @@ export const loginHandler = async (request: { payload: UserEntity }, h: Response
     const body: UserEntity = request.payload;
     let password: string = get(body, "password", "");
     let username: string = get(body, "username", "");
+    const user: UserEntity | null = await retrieveUser({username});
 
-    console.log(`ddd${process.env.VALUE_TEST}`);
-
-    const user: UserEntity | null = await retrieveUser("username", username);
     password = await crypto.sha512(password);
     console.log(`666${password}666`);
 

@@ -8,7 +8,7 @@ export const jwtMiddleware = (request:any, h: any) => {
 
     if(user instanceof Error)
         return h.response({
-            message: "The authentication Token has been expired, please login!."
+            message: "The authentication Token has been expired, please login!"
         }).code(400);
 
     return user;
