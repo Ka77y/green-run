@@ -1,6 +1,5 @@
 import {ResponseObject, ResponseToolkit} from "hapi";
-import {get, isNil, omit} from "lodash";
-import {verifyJWT} from "../util/JWT";
+import {get, isEmpty, isNil} from "lodash";
 import {WalletEntity} from "../entities/userWallet.entity";
 import {retrieveWallet} from "../controllers/userWallet.controller";
 import {messageResponse} from "../util/MessageResponse";
@@ -8,23 +7,29 @@ import {UserEntity} from "../entities/user.entity";
 import {retrieveUser} from "../controllers/users.controller";
 
 export const getBalanceHandler = async (request: Request, h: ResponseToolkit): Promise<ResponseObject> => {
-    console.log("heeeeereee");
-    let {id, role} = get(request, "pre.jwtMiddleware", "");
+    let {id, role, user_state} = get(request, "pre.jwtMiddleware", "");
+    console.log("id");
+    console.log(id);
+    console.log("id");
+    const query = get(request, "query", "");
+    let payload: object = {};
 
-    console.log(get(request, "params.username", ""));
-
-    if (role === "admin") {
-        const user: UserEntity | null = await retrieveUser("username", get(request, "params.username", ""));
-
-        if (isNil(user))
-            return messageResponse("There specified user doesn´t exist", 400, h);
-
-        id = user?.id
+    if(user_state === "block") {
+        return messageResponse("The user is blocked and cannot perform this action", 400, h);
     }
 
-    console.log(id);
+    if (!isEmpty(query)){
+        payload = {...query, user_id: get(request, "query.user_id", "") };
+    } else {
+        if (role === "user") {
+            payload = { user_id: id };
+        }
+    }
 
-    const wallet_aux: WalletEntity | null = await retrieveWallet("user_id", id);
+    console.log("payload");
+    console.log(payload);
+    console.log("payload");
+    const wallet_aux: WalletEntity | null = await retrieveWallet(payload);
 
     if (isNil(wallet_aux))
         return messageResponse("There is not any balance for the user", 400, h);

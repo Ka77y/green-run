@@ -6,18 +6,14 @@ import {saveUser} from "../controllers/users.controller";
 import {generateJwt} from "../util/JWT";
 import {saveSession} from "../controllers/session.controller";
 import {BetsEntity} from "../entities/bets.entity";
+import {saveBet} from "../controllers/bet.controller";
 
 export const createBetHandler = async (request: { payload: BetsEntity }, h: ResponseToolkit): Promise<BetsEntity> => {
     const body: BetsEntity = request.payload;
-    const user: string = get(body, "pwd", "");
-    let password: string = get(body, "pwd", "");
-
-    console.log("request", request);
-    console.log(password);
-
-    password = await crypto.sha512(password)
-
-    console.log(password);
+    saveBet({
+        ...body,
+        created_at: Date.now(),
+    });
 
     return body;
 }

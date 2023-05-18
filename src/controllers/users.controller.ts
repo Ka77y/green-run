@@ -1,10 +1,9 @@
 import { AppDataSource } from "../mysql"
 import {UserEntity} from "../entities/user.entity";
 import {
-    get, isNil, keys
+    get, isNil, set
 } from "lodash";
 import {WalletEntity} from "../entities/userWallet.entity";
-import {SessionEntity} from "../entities/sessionEntity";
 
 export const saveUser = async (userData: UserEntity): Promise<number | undefined> => {
     const user: UserEntity = new UserEntity();
@@ -35,36 +34,14 @@ export const saveUser = async (userData: UserEntity): Promise<number | undefined
 }
 
 
-export const retrieveUser = async (key:string, value: string | number): Promise<UserEntity | null> => {
-    const retrieve_query: object = {
-        [key]: value
-    }
-    console.log("retrieve_query")
-    console.log(retrieve_query)
-    console.log("retrieve_query")
-    const user: UserEntity | null = await AppDataSource.getRepository(UserEntity).findOneBy(retrieve_query)
+export const retrieveUser = async (payload: object): Promise<UserEntity | null> =>
+    await AppDataSource.getRepository(UserEntity).findOneBy(payload);
 
-    console.log("user: ", user)
-
-    return user
-}
-
-export const updateUser = async (userData: UserEntity, id: number): Promise<void> => {
-    const user: UserEntity | null = await retrieveUser("id", id);
-
-    console.log("userData");
-    console.log(userData);
-    console.log("userData");
-
-    if (!isNil(user)) {
-        // @ts-ignore
-        Object.keys(userData).forEach((key: string) => (user[key] = userData[key]))
+export const updateUser = async (userData: object, query_payload: object): Promise<void> => {
+    const user: UserEntity | null = await retrieveUser(query_payload);
+    if (!isNil(userData)) {
+        Object.keys(userData).forEach((key: string) => set(<UserEntity>user, key, get(userData, key, "")));
     }
 
-    console.log("userId");
-    console.log(user);
-    console.log("userId");
-    await AppDataSource.manager.save(user);
-
-    console.log("User has been updated. User id is", id);
+    await AppDataSource.manager.save(UserEntity, {...user, ...userData});
 }
